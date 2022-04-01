@@ -211,9 +211,17 @@ fn build() -> io::Result<()> {
         let prefix = compiler[0..suffix_pos].trim_end_matches("-wr"); // "wr-c++" compiler
 
         configure.arg(format!("--cross-prefix={}-", prefix));
+        let arg_arch = env::var("CARGO_CFG_TARGET_ARCH").unwrap();
         configure.arg(format!(
             "--arch={}",
-            env::var("CARGO_CFG_TARGET_ARCH").unwrap()
+            if arg_arch.starts_with("riscv64gc") {
+                let part = arg_arch.split('-').collect::<Vec<&str>>();
+                let debu = format!("riscv64-{}", &part[1..].join("-"));
+                dbg!(&debu);
+                debu
+            } else {
+                arg_arch
+            }
         ));
         configure.arg(format!(
             "--target_os={}",
